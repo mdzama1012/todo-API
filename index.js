@@ -1,15 +1,15 @@
 const dotenv = require("dotenv");
 
-dotenv.config({ path: "../.env" });
+dotenv.config();
 
 const express = require("express");
 const cors = require("cors");
 
-const connectToDatabase = require("./config/db");
-const userRouter = require("./routes/userRouter");
-const todoRouter = require("./routes/todoRouter");
-const projectRouter = require("./routes/projectRouter");
-const errorHandler = require("./middleware/errorHandler");
+const connectToDatabase = require("./src/config/db");
+const userRouter = require("./src/routes/userRouter");
+const todoRouter = require("./src/routes/todoRouter");
+const projectRouter = require("./src/routes/projectRouter");
+const errorHandler = require("./src/middleware/errorHandler");
 
 const app = express();
 
