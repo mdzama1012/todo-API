@@ -4,7 +4,7 @@
 	"main": "index.js",
 	"type": "commonjs",
 	"scripts": {
-		"start": "clear && cd src && npx nodemon"
+		"start": "clear && cd src && npx nodemon ./index.js"
 	},
 	"keywords": [],
 	"author": "",
