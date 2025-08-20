@@ -38,7 +38,7 @@ app.use(errorHandler);
 
 (async () => {
 	await connectToDatabase();
-	app.listen(3000, "localhost", () =>
-		console.log("Server is running on the port:", 3000)
+	app.listen(process.env.PORT, "localhost", () =>
+		console.log("Server is running on the port:", process.env.PORT)
 	);
 })();
