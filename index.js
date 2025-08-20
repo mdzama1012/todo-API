@@ -38,7 +38,9 @@ app.use(errorHandler);
 
 (async () => {
 	await connectToDatabase();
-	app.listen(process.env.PORT, "localhost", () =>
-		console.log("Server is running on the port:", process.env.PORT)
+	app.listen(
+		process.env.PORT,
+		process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost",
+		() => console.log("Server is running on the port:", process.env.PORT)
 	);
 })();
