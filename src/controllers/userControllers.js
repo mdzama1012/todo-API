@@ -44,7 +44,7 @@ async function getTodayProgress(req, res) {
 	const userId = req.userId;
 	// today start and end timestamps.
 	const t1 = new Date().setHours(0, 0, 0, 0);
-	const t2 = new Date().setHours(23, 59, 59, 999);
+	const t2 = new Date().setHours(23, 59, 59);
 
 	const pendingCount = await todoModel
 		.countDocuments({
