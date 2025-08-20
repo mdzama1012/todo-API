@@ -10,19 +10,19 @@ try {
 	process.exit(1);
 }
 
-const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const express = require("express");
 const connectToDatabase = require("./src/config/db");
 const userRouter = require("./src/routes/userRouter");
 const todoRouter = require("./src/routes/todoRouter");
-const projectRouter = require("./src/routes/projectRouter");
 const errorHandler = require("./src/utils/errorHandler");
+const projectRouter = require("./src/routes/projectRouter");
 
 const app = express();
 
-app.use(helmet());
 app.use(express.json());
+app.use(helmet());
 app.use(
 	cors((_, cb) => {
 		const whitelist = process.env.ALLOWED_ORIGINS.split(",");

@@ -41,7 +41,7 @@ async function getTodosForToday(req, res) {
 	const userId = req.userId;
 	// today start and end timestamps.
 	const t1 = new Date().setHours(0, 0, 0, 0);
-	const t2 = new Date().setHours(23, 59, 59);
+	const t2 = new Date().setHours(23, 59, 59, 0);
 
 	const data = await todoModel
 		.find({
@@ -57,7 +57,7 @@ async function getTodosForToday(req, res) {
 
 async function getUpcomingTodos(req, res) {
 	const userId = req.userId;
-	const timestamp = new Date().setHours(23, 59, 59);
+	const timestamp = new Date().setHours(23, 59, 59, 0);
 
 	const data = await todoModel
 		.find({

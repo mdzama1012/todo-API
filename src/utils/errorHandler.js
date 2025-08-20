@@ -1,6 +1,7 @@
+const { z } = require("zod");
 const mongoose = require("mongoose");
 
-function errorHandler(err, req, res, next) {
+function errorHandler(err, _, res, next) {
 	// prevent default error handler
 	if (res.headersSent) {
 		return next(err);
