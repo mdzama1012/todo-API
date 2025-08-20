@@ -17,7 +17,7 @@ const todoSchema = new mongoose.Schema(
 		status: {
 			type: String,
 			enum: {
-				values: ["pending", "ongoing", "complete"],
+				values: ["pending", "ongoing", "completed"],
 				message:
 					"Status can't be `VALUE`. It should be pending, ongoing or completed!",
 			},
@@ -40,7 +40,7 @@ const todoSchema = new mongoose.Schema(
 			// if no deadline is assigned use EOD as deadline.
 			default: function () {
 				const date = new Date();
-				date.setHours(23, 59, 59, 0);
+				date.setUTCHours(23, 59, 59, 0);
 				return date;
 			},
 		},
