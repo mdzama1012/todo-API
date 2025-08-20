@@ -25,6 +25,7 @@ const projectSchema = new mongoose.Schema(
 			},
 			default: "#999999",
 		},
+		isFavorite: { type: Boolean, default: false },
 		coverImageURL: String,
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,

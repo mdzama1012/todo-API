@@ -8,7 +8,6 @@ const {
 	getUpcomingTodos,
 	getDueTodos,
 	getCompletedTodo,
-	updateTodo,
 	deleteTodo,
 	changeTodoStatus,
 } = require("../controllers/todoControllers");
@@ -16,6 +15,7 @@ const {
 const router = express.Router();
 router.use(auth);
 
+// endpoint for optimistic UI.
 router.get("/:todoId", getNormalTodo);
 
 router.get("/user-todos/today", getTodosForToday);
@@ -29,8 +29,6 @@ router.get("/user-todos/complete", getCompletedTodo);
 router.post("/", createNormalTodo);
 
 router.post("/project/:projectId", createProjectTodo);
-
-router.put("/:todoId", updateTodo);
 
 router.patch("/status/:todoId", changeTodoStatus);
 

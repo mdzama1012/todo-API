@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema(
 					maxLength: 100,
 					trim: true,
 				},
+				isFavorite: { type: Boolean, default: false },
 			},
 		],
 	},

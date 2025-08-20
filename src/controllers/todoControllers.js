@@ -4,14 +4,11 @@ const { todoModel, projectTodoModel } = require("../models/todoModel");
 const { zodTodoSchema } = require("../utils/zod");
 
 async function createProjectTodo(req, res) {
-	const data = zodTodoSchema.parse(req.body);
-
+	const userId = req.userId;
 	const projectId = req.params.projectId;
 
-	const userId = req.userId;
-
+	const data = zodTodoSchema.parse(req.body);
 	const project = await projectModel.findById(projectId).lean().exec();
-
 	await projectTodoModel.create({
 		...data,
 		userId,
@@ -25,133 +22,111 @@ async function createProjectTodo(req, res) {
 }
 
 async function createNormalTodo(req, res) {
-	const data = zodTodoSchema.parse(req.body);
-
 	const userId = req.userId;
 
+	const data = zodTodoSchema.parse(req.body);
 	await todoModel.create({ ...data, userId });
-
 	res.sendStatus(201);
 }
 
 async function getNormalTodo(req, res) {
+	const userId = req.userId;
 	const todoId = req.params.todoId;
 
-	const data = await todoModel.findById(todoId).lean().exec();
-
+	const data = await todoModel.findOne({ _id: todoId, userId }).lean().exec();
 	res.json(data);
 }
 
 async function getTodosForToday(req, res) {
 	const userId = req.userId;
-	const todayStart = new Date();
-	const todayEnd = new Date();
-
-	todayStart.setHours(0, 0, 0, 0);
-	todayEnd.setHours(23, 59, 59, 999);
+	// today start and end timestamps.
+	const t1 = new Date().setHours(0, 0, 0, 0);
+	const t2 = new Date().setHours(23, 59, 59, 999);
 
 	const data = await todoModel
 		.find({
 			userId,
-			endsAt: { $gte: todayStart, $lte: todayEnd },
+			endsAt: { $gte: t1, $lte: t2 },
 			status: { $in: ["pending", "ongoing"] },
 		})
+		.sort({ priority: "desc", createdAt: "desc" })
 		.lean()
 		.exec();
-
 	res.json(data);
 }
 
 async function getUpcomingTodos(req, res) {
 	const userId = req.userId;
-	const todayEnd = new Date();
-
-	todayEnd.setHours(23, 59, 59, 999);
+	const timestamp = new Date().setHours(23, 59, 59, 999);
 
 	const data = await todoModel
 		.find({
 			userId,
-			endsAt: { $gt: todayEnd },
+			endsAt: { $gt: timestamp },
 			status: { $in: ["pending", "ongoing"] },
 		})
+		.sort({ priority: "desc", createdAt: "desc" })
 		.lean()
 		.exec();
-
 	res.json(data);
 }
 
 async function getDueTodos(req, res) {
 	const userId = req.userId;
-	const todayStart = new Date();
-
-	todayStart.setHours(0, 0, 0, 0);
+	const timestamp = new Date().setHours(0, 0, 0, 0);
 
 	const data = await todoModel
 		.find({
 			userId,
-			endsAt: { $lt: todayStart },
+			endsAt: { $lt: timestamp },
 			status: { $in: ["pending", "ongoing"] },
 		})
+		.sort({ priority: "desc", createdAt: "desc" })
 		.lean()
 		.exec();
-
 	res.json(data);
 }
 
 async function getCompletedTodo(req, res) {
 	const userId = req.userId;
+
 	const data = await todoModel
 		.find({ userId, status: "complete" })
+		.sort({ priority: "desc", createdAt: "desc" })
 		.lean()
 		.exec();
-
 	res.json(data);
 }
 
-async function updateTodo(req, res) {
-	const data = zodTodoSchema.parse(req.body);
+async function changeTodoStatus(req, res) {
 	const todoId = req.params.todoId;
 
-	const newData = await todoModel
-		.findByIdAndUpdate(todoId, data, {
-			returnDocument: "after",
-		})
-		.lean()
-		.exec();
-
-	res.json(newData);
-}
-
-async function changeTodoStatus(req, res) {
+	// zod schema to sanitize payload.
 	const zodStatusSchema = z
-		.object({
-			status: z.enum(["complete", "ongoing", "pending"]),
-		})
+		.object({ status: z.enum(["completed", "ongoing", "pending"]) })
 		.strict()
 		.required();
 
 	const data = zodStatusSchema.parse(req.body);
-	const { todoId } = req.params;
-
 	await todoModel.findByIdAndUpdate(todoId, data).lean().exec();
 	res.sendStatus(204);
 }
 
 async function deleteTodo(req, res) {
 	const todoId = req.params.todoId;
+
 	await todoModel.deleteOne({ _id: todoId }).exec();
 	res.sendStatus(204);
 }
 
 module.exports = {
-	createProjectTodo,
-	createNormalTodo,
+	deleteTodo,
+	getDueTodos,
 	getNormalTodo,
 	getTodosForToday,
+	createNormalTodo,
 	getUpcomingTodos,
-	getDueTodos,
 	getCompletedTodo,
-	updateTodo,
 	changeTodoStatus,
-	deleteTodo,
+	createProjectTodo,
 };

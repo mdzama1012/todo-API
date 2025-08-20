@@ -2,81 +2,72 @@ const { z } = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const AppError = require("../utils/AppError");
 const userModel = require("../models/userModel");
 const { zodSignInSchema, zodSignUpSchema } = require("../utils/zod");
+const { todoModel } = require("../models/todoModel");
 
 async function createAccount(req, res) {
 	const data = zodSignUpSchema.parse(req.body);
-
 	const hashPassword = await bcrypt.hash(data.password, 7);
-
 	await userModel.create({ ...data, password: hashPassword });
-
 	res.sendStatus(201);
 }
 
-async function loginAccount(req, res, next) {
+async function loginAccount(req, res) {
 	const data = zodSignInSchema.parse(req.body);
-
-	const user = await userModel
-		.findOne({ email: data.email })
-		.select(["_id", "password"])
-		.lean()
-		.exec();
-
+	const user = await userModel.findOne({ email: data.email }).lean().exec();
 	if (!user) {
-		throw new AppError(
-			404,
-			"Not Found",
-			"User with this username or password doesn't exists."
-		);
+		return res.status(401).json({
+			message: "Invalid credentials provided!",
+		});
 	}
-
-	const match = await bcrypt.compare(data.password, user.password);
-
-	if (match) {
-		res.json({ token: jwt.sign({ userId: user._id }, process.env.JWT_USER) });
-	} else throw new AppError(401, "Unauthorized", "User credentials are wrong!");
+	const isPasswordValid = await bcrypt.compare(data.password, user.password);
+	if (!isPasswordValid) {
+		return res.status(401).json({
+			message: "Invalid credentials provided!",
+		});
+	}
+	res.json({ token: jwt.sign({ userId: user._id }, process.env.JWT_USER) });
 }
 
-async function getAccountSummary(req, res, next) {
+async function getAccountSummary(req, res) {
 	const userId = req.userId;
-
 	const data = await userModel
-		.findById(userId)
-		.select(["-_id", "fname", "lname", "email", "theme", "motto"])
+		.findOne({ _id: userId })
+		.select(["fname", "lname", "email"])
 		.lean()
 		.exec();
 	res.json(data);
 }
 
-async function changeTheme(req, res, next) {
+async function getTodayProgress(req, res) {
 	const userId = req.userId;
+	// today start and end timestamps.
+	const t1 = new Date().setHours(0, 0, 0, 0);
+	const t2 = new Date().setHours(23, 59, 59, 999);
 
-	const zodThemeSchema = z
-		.object({
-			theme: z.enum(["light", "dark"]),
+	const pendingCount = await todoModel
+		.countDocuments({
+			userId,
+			endsAt: { $gte: t1, $lte: t2 },
+			status: { $in: ["pending", "ongoing"] },
 		})
-		.strict()
-		.required();
-
-	const data = zodThemeSchema.parse(req.body);
-
-	const updatedTheme = await userModel
-		.findByIdAndUpdate(userId, data, {
-			returnDocument: "after",
-		})
-		.select(["fname", "lname", "email", "theme", "motto"])
 		.lean()
 		.exec();
-
-	res.json(updatedTheme);
+	const completedCount = await todoModel
+		.countDocuments({
+			userId,
+			endsAt: { $gte: t1, $lte: t2 },
+			status: { $in: ["complete"] },
+		})
+		.lean()
+		.exec();
+	res.json({ pendingCount, completedCount });
 }
 
 module.exports = {
-	createAccount,
+	getTodayProgress,
 	loginAccount,
+	createAccount,
 	getAccountSummary,
-	changeTheme,
 };
