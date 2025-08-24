@@ -114,10 +114,10 @@ async function getProject(req, res) {
 }
 
 module.exports = {
+	getProject,
 	createProject,
-	getProjectList,
-	getProjectTodos,
 	updateProject,
 	deleteProject,
-	getProject,
+	getProjectList,
+	getProjectTodos,
 };
