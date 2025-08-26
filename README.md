@@ -49,23 +49,23 @@ npm install
 
 1. Copy the example environment file:
 
-   ```bash
-   cp env.example .env
-   ```
+    ```bash
+    cp env.example .env
+    ```
 
 2. Edit the `.env` file with your configuration:
 
-   ```env
-   # Server Configuration
-   PORT=3000
-   NODE_ENV=development
+    ```env
+    # Server Configuration
+    PORT=3000
+    NODE_ENV=development
 
-   # Database Configuration
-   MONGODB_URI=mongodb://localhost:27017/todoist-clone
+    # Database Configuration
+    MONGODB_URI=mongodb://localhost:27017/todoist-clone
 
-   # JWT Configuration
-   JWT_USER=your-super-secret-jwt-key-here
-   ```
+    # JWT Configuration
+    JWT_USER=your-super-secret-jwt-key-here
+    ```
 
 ### 4. Database Setup
 
